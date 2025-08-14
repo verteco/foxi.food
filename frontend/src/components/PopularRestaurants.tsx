@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../services/api';
 
 interface Restaurant {
   id: number;
+  slug?: string;
   name: string;
   description: string;
   cuisine_type: string;
@@ -24,75 +25,14 @@ const PopularRestaurants: React.FC = () => {
 
   const fetchRestaurants = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/restaurants/?ordering=name');
+      const response = await apiClient.get('/api/restaurants/', { params: { ordering: 'name' } });
       setRestaurants(response.data.results?.slice(0, 6) || []); // Take first 6 restaurants
     } catch (error) {
       console.error('Error fetching restaurants:', error);
-      // Keep mock data as fallback
     } finally {
       setLoading(false);
     }
   };
-
-  const mockRestaurants = [
-    {
-      id: 1,
-      name: 'Pizza Palazzo',
-      image: '/api/placeholder/300/200',
-      rating: 4.8,
-      deliveryTime: '25-35 min',
-      deliveryFee: '2.50€',
-      categories: ['Pizza', 'Talianské']
-    },
-    {
-      id: 2,
-      name: 'Sushi Master',
-      image: '/api/placeholder/300/200',
-      rating: 4.9,
-      deliveryTime: '30-40 min',
-      deliveryFee: '3.00€',
-      categories: ['Sushi', 'Ázijské']
-    },
-    {
-      id: 3,
-      name: 'Burger Kingdom',
-      image: '/api/placeholder/300/200',
-      rating: 4.7,
-      deliveryTime: '20-30 min',
-      deliveryFee: '2.00€',
-      categories: ['Burger', 'Americké']
-    },
-    {
-      id: 4,
-      name: 'Zdravé Chute',
-      image: '/api/placeholder/300/200',
-      rating: 4.6,
-      deliveryTime: '35-45 min',
-      deliveryFee: '2.90€',
-      categories: ['Zdravé', 'Saláty']
-    },
-    {
-      id: 5,
-      name: 'Pasta Corner',
-      image: '/api/placeholder/300/200',
-      rating: 4.8,
-      deliveryTime: '25-35 min',
-      deliveryFee: '2.50€',
-      categories: ['Pasta', 'Talianské']
-    },
-    {
-      id: 6,
-      name: 'Pho Vietnam',
-      image: '/api/placeholder/300/200',
-      rating: 4.7,
-      deliveryTime: '30-40 min',
-      deliveryFee: '2.80€',
-      categories: ['Vietnamské', 'Polievky']
-    }
-  ];
-
-  // Use real restaurants if loaded, otherwise fallback to mock data
-  const displayRestaurants = restaurants.length > 0 ? restaurants : mockRestaurants;
 
   return (
     <section className="py-16 bg-gray-50">
@@ -113,75 +53,47 @@ const PopularRestaurants: React.FC = () => {
         )}
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayRestaurants.map((restaurant) => {
-            // Check if this is API data or mock data
-            const isApiData = 'cuisine_type' in restaurant;
-            const restaurantData = restaurant as any;
-            
-            return (
-              <div key={restaurant.id} className="restaurant-card">
-                <div className="relative">
-                  <img
-                    src={isApiData 
-                      ? (restaurantData.cover_image || '/api/placeholder/300/200')
-                      : restaurantData.image
-                    }
-                    alt={restaurant.name}
-                    className="w-full h-48 object-cover"
-                  />
-                  {!isApiData && restaurantData.rating && (
-                    <div className="absolute top-4 right-4 bg-white px-2 py-1 rounded-full text-sm font-semibold text-gray-800 shadow-sm">
-                      ⭐ {restaurantData.rating}
-                    </div>
+          {restaurants.length === 0 && !loading && (
+            <div className="col-span-full text-center text-gray-600">
+              Žiadne reštaurácie neboli nájdené.
+            </div>
+          )}
+          {restaurants.map((restaurant) => (
+            <div key={restaurant.id} className="restaurant-card">
+              <div className="relative">
+                <img
+                  src={restaurant.cover_image || '/api/placeholder/300/200'}
+                  alt={restaurant.name}
+                  className="w-full h-48 object-cover"
+                />
+              </div>
+              
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  {restaurant.name}
+                </h3>
+                
+                <p className="text-gray-600 mb-3 text-sm">
+                  {restaurant.description || 'Skvelá reštaurácia s lahodným jedlom'}
+                </p>
+                
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {restaurant.cuisine_type && (
+                    <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm">
+                      {restaurant.cuisine_type}
+                    </span>
                   )}
                 </div>
                 
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    {restaurant.name}
-                  </h3>
-                  
-                  <p className="text-gray-600 mb-3 text-sm">
-                    {(restaurant as any).description || 'Skvělá restaurace s lahodným jídlem'}
-                  </p>
-                  
-                  {/* Categories for API vs Mock data */}
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {isApiData ? (
-                      <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm">
-                        {restaurantData.cuisine_type}
-                      </span>
-                    ) : (
-                      restaurantData.categories?.map((category: string) => (
-                        <span
-                          key={category}
-                          className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm"
-                        >
-                          {category}
-                        </span>
-                      ))
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-sm text-gray-600">
-                    <div className="flex items-center space-x-4">
-                      {isApiData ? (
-                        <>
-                          <span>🚚 {restaurantData.delivery_fee}€</span>
-                          <span>📦 Min. {restaurantData.minimum_order}€</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>🕒 {restaurantData.deliveryTime}</span>
-                          <span>🚚 {restaurantData.deliveryFee}</span>
-                        </>
-                      )}
-                    </div>
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <div className="flex items-center space-x-4">
+                    <span>🚚 {restaurant.delivery_fee}€</span>
+                    <span>📦 Min. {restaurant.minimum_order}€</span>
                   </div>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
         
         <div className="text-center mt-12">

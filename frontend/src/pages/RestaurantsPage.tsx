@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { Link } from 'react-router-dom';
+import apiClient from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 interface Restaurant {
   id: number;
+  slug?: string;
   name: string;
   description: string;
   cuisine_type: string;
@@ -30,101 +32,21 @@ const RestaurantsPage: React.FC = () => {
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8000/api/restaurants/');
+      const response = await apiClient.get('/api/restaurants/');
       setRestaurants(response.data.results || []);
     } catch (err) {
       setError('Chyba pri načítavaní reštaurácií');
-      console.error('Error fetching restaurants:', err);
+      console.error('Error fetching reštaurácií:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const mockRestaurants = [
-    {
-      id: 1,
-      name: 'Pizza Palazzo',
-      image: '/api/placeholder/300/200',
-      rating: 4.8,
-      deliveryTime: '25-35 min',
-      deliveryFee: '2.50€',
-      categories: ['Pizza', 'Talianské'],
-      distance: '1.2 km',
-      isOpen: true,
-      description: 'Autentické talianske pizze pečené v kamennej peci'
-    },
-    {
-      id: 2,
-      name: 'Sushi Master',
-      image: '/api/placeholder/300/200',
-      rating: 4.9,
-      deliveryTime: '30-40 min',
-      deliveryFee: '3.00€',
-      categories: ['Sushi', 'Ázijské'],
-      distance: '2.1 km',
-      isOpen: true,
-      description: 'Čerstvé sushi pripravované našimi majstrami'
-    },
-    {
-      id: 3,
-      name: 'Burger Kingdom',
-      image: '/api/placeholder/300/200',
-      rating: 4.7,
-      deliveryTime: '20-30 min',
-      deliveryFee: '2.00€',
-      categories: ['Burger', 'Americké'],
-      distance: '0.8 km',
-      isOpen: true,
-      description: 'Najlepšie americké burgery v meste'
-    },
-    {
-      id: 4,
-      name: 'Zdravé Chute',
-      image: '/api/placeholder/300/200',
-      rating: 4.6,
-      deliveryTime: '35-45 min',
-      deliveryFee: '2.90€',
-      categories: ['Zdravé', 'Saláty'],
-      distance: '1.5 km',
-      isOpen: false,
-      description: 'Zdravé a čerstvé jedlá pre aktívny životný štýl'
-    },
-    {
-      id: 5,
-      name: 'Pasta Corner',
-      image: '/api/placeholder/300/200',
-      rating: 4.8,
-      deliveryTime: '25-35 min',
-      deliveryFee: '2.50€',
-      categories: ['Pasta', 'Talianské'],
-      distance: '1.7 km',
-      isOpen: true,
-      description: 'Domáce talianske cestoviny s čerstvými ingredienciami'
-    },
-    {
-      id: 6,
-      name: 'Pho Vietnam',
-      image: '/api/placeholder/300/200',
-      rating: 4.7,
-      deliveryTime: '30-40 min',
-      deliveryFee: '2.80€',
-      categories: ['Vietnamské', 'Polievky'],
-      distance: '2.3 km',
-      isOpen: true,
-      description: 'Autentické vietnamské polievky a jedlá'
-    }
-  ];
-
   const categories = ['all', ...Array.from(new Set(restaurants.map(r => r.cuisine_type)))];
 
-  const displayRestaurants = restaurants.length > 0 ? restaurants : mockRestaurants;
-
-  const filteredRestaurants = (displayRestaurants as any[]).filter((restaurant: any) => {
+  const filteredRestaurants = restaurants.filter((restaurant) => {
     if (selectedCategory === 'all') return true;
-    if ('cuisine_type' in restaurant) {
-      return restaurant.cuisine_type === selectedCategory;
-    }
-    return (restaurant as any).categories?.includes(selectedCategory);
+    return restaurant.cuisine_type === selectedCategory;
   });
 
   const sortedRestaurants = [...filteredRestaurants].sort((a, b) => {
@@ -259,102 +181,95 @@ const RestaurantsPage: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {sortedRestaurants.map((restaurant) => {
-              // Check if this is API data or mock data
-              const isApiData = 'cuisine_type' in restaurant;
-              const restaurantData = restaurant as any;
+              const isOpen = restaurant.is_accepting_orders;
+              const slug = restaurant.slug || restaurant.id;
               
               return (
-                <div key={restaurant.id} className="restaurant-card">
-                  <div className="relative">
-                    <img
-                      src={isApiData 
-                        ? (restaurantData.cover_image || '/api/placeholder/300/200')
-                        : restaurantData.image
-                      }
-                      alt={restaurant.name}
-                      className="w-full h-48 object-cover"
-                    />
-                    {isApiData && !restaurantData.is_accepting_orders && (
-                      <div className="absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-                        <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-800">
-                          Zatvorené
-                        </span>
+                <div key={restaurant.id} className="restaurant-card bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md relative">
+                  {isOpen ? (
+                    <Link to={`/restaurant/${slug}`} className="block">
+                      <div className="relative">
+                        <img
+                          src={restaurant.cover_image || '/api/placeholder/300/200'}
+                          alt={restaurant.name}
+                          className="w-full h-48 object-cover"
+                        />
                       </div>
-                    )}
-                    {!isApiData && !restaurantData.isOpen && (
-                      <div className="absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-                        <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-800">
-                          Zatvorené
-                        </span>
-                      </div>
-                    )}
-                    {!isApiData && restaurantData.rating && (
-                      <div className="absolute top-4 right-4 bg-white px-2 py-1 rounded-full text-sm font-semibold text-gray-800 shadow-sm">
-                        ⭐ {restaurantData.rating}
-                      </div>
-                    )}
-                    {!isApiData && restaurantData.distance && (
-                      <div className="absolute top-4 left-4 bg-foxi-orange text-white px-2 py-1 rounded-full text-sm font-semibold">
-                        {restaurantData.distance}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      {restaurant.name}
-                    </h3>
-                    
-                    <p className="text-gray-600 mb-3">
-                      {restaurant.description}
-                    </p>
-                    
-                    {/* Categories for API vs Mock data */}
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {isApiData ? (
-                        <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm">
-                          {restaurantData.cuisine_type}
-                        </span>
-                      ) : (
-                        restaurantData.categories?.map((category: string) => (
-                          <span
-                            key={category}
-                            className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm"
-                          >
-                            {category}
-                          </span>
-                        ))
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-                      <div className="flex items-center space-x-4">
-                        {isApiData ? (
-                          <>
-                            <span>🚚 {restaurantData.delivery_fee}€</span>
-                            <span>📦 Min. {restaurantData.minimum_order}€</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>🕒 {restaurantData.deliveryTime}</span>
-                            <span>🚚 {restaurantData.deliveryFee}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
+                      
+                      <div className="p-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                          {restaurant.name}
+                        </h3>
+                        
+                        <p className="text-gray-600 mb-3">
+                          {restaurant.description}
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {restaurant.cuisine_type && (
+                            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm">
+                              {restaurant.cuisine_type}
+                            </span>
+                          )}
+                        </div>
+                        
+                        <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                          <div className="flex items-center space-x-4">
+                            <span>🚚 {restaurant.delivery_fee}€</span>
+                            <span>📦 Min. {restaurant.minimum_order}€</span>
+                          </div>
+                        </div>
 
-                    <button 
-                      onClick={() => window.location.href = `/restaurant/${restaurant.id}`}
-                      className={`w-full py-3 rounded-lg font-semibold transition-colors ${
-                        (isApiData ? restaurantData.is_accepting_orders : restaurantData.isOpen)
-                          ? 'bg-foxi-orange hover:bg-orange-600 text-white'
-                          : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                      }`}
-                      disabled={!(isApiData ? restaurantData.is_accepting_orders : restaurantData.isOpen)}
-                    >
-                      {(isApiData ? restaurantData.is_accepting_orders : restaurantData.isOpen) ? 'Zobraziť menu' : 'Zatvorené'}
-                    </button>
-                  </div>
+                        <div className="block w-full text-center py-3 rounded-lg font-semibold transition-colors bg-foxi-orange hover:bg-orange-600 text-white">
+                          Zobraziť menu
+                        </div>
+                      </div>
+                    </Link>
+                  ) : (
+                    <>
+                      <div className="relative">
+                        <img
+                          src={restaurant.cover_image || '/api/placeholder/300/200'}
+                          alt={restaurant.name}
+                          className="w-full h-48 object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+                          <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-800">
+                            Zatvorené
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="p-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                          {restaurant.name}
+                        </h3>
+                        
+                        <p className="text-gray-600 mb-3">
+                          {restaurant.description}
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {restaurant.cuisine_type && (
+                            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm">
+                              {restaurant.cuisine_type}
+                            </span>
+                          )}
+                        </div>
+                        
+                        <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                          <div className="flex items-center space-x-4">
+                            <span>🚚 {restaurant.delivery_fee}€</span>
+                            <span>📦 Min. {restaurant.minimum_order}€</span>
+                          </div>
+                        </div>
+
+                        <div className="w-full py-3 rounded-lg font-semibold transition-colors bg-gray-200 text-gray-500 cursor-not-allowed text-center">
+                          Zatvorené
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               );
             })}

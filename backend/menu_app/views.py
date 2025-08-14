@@ -208,14 +208,10 @@ class MenuItemImageUploadView(generics.UpdateAPIView):
 
 # ===== RESTAURANT MENU OVERVIEW =====
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def restaurant_menu_overview(request, restaurant_slug):
+def _get_menu_data(restaurant):
     """
-    API endpoint for complete restaurant menu overview
+    Helper function to prepare menu data for a restaurant
     """
-    restaurant = get_object_or_404(Restaurant, slug=restaurant_slug, is_active=True)
-    
     categories = Category.objects.filter(
         restaurant=restaurant, 
         is_active=True
@@ -235,7 +231,7 @@ def restaurant_menu_overview(request, restaurant_slug):
         }
         menu_data.append(category_data)
     
-    return Response({
+    return {
         'restaurant': {
             'id': restaurant.id,
             'name': restaurant.name,
@@ -245,4 +241,22 @@ def restaurant_menu_overview(request, restaurant_slug):
         'categories': menu_data,
         'total_categories': len(menu_data),
         'total_items': sum(cat['items_count'] for cat in menu_data)
-    })
+    }
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def restaurant_menu_overview(request, restaurant_slug):
+    """
+    API endpoint for complete restaurant menu overview by slug
+    """
+    restaurant = get_object_or_404(Restaurant, slug=restaurant_slug, is_active=True)
+    return Response(_get_menu_data(restaurant))
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def restaurant_menu_by_id(request, restaurant_id):
+    """
+    API endpoint for complete restaurant menu overview by ID
+    """
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id, is_active=True)
+    return Response(_get_menu_data(restaurant))

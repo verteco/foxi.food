@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 interface Restaurant {
   id: number;
+  slug?: string;
   name: string;
   description: string;
   address: string;
@@ -53,125 +54,60 @@ interface MenuItemVariation {
 }
 
 const RestaurantDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const [restaurantData, setRestaurantData] = useState<Restaurant | null>(null);
+  const { slug } = useParams<{ slug: string }>();
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [menuCategories, setMenuCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [cart, setCart] = useState<any[]>([]);
 
   useEffect(() => {
-    if (id) {
-      fetchRestaurant(id);
-    }
-  }, [id]);
-
-  const fetchRestaurant = async (restaurantId: string) => {
-    try {
+    const fetchRestaurantDetails = async () => {
+      if (!slug) return;
       setLoading(true);
-      const response = await axios.get(`http://localhost:8000/api/restaurants/${restaurantId}/`);
-      setRestaurantData(response.data);
-    } catch (err) {
-      setError('Reštaurácia nebola nájdená');
-      console.error('Error fetching restaurant:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setError(null);
+      try {
+        const restaurantResponse = await apiClient.get(`/api/restaurants/${slug}/`);
+        setRestaurant(restaurantResponse.data);
 
-  // Mock data as fallback
-  const mockRestaurant = {
-    id: 1,
-    name: 'Pizza Palazzo',
-    image: '/api/placeholder/800/300',
-    coverImage: '/api/placeholder/800/300',
-    rating: 4.8,
-    reviewCount: 324,
-    deliveryTime: '25-35 min',
-    deliveryFee: '2.50€',
-    minimumOrder: '15.00€',
-    categories: ['Pizza', 'Talianské'],
-    description: 'Autentické talianske pizze pečené v kamennej peci. Používame len najčerstvejšie ingrediencie a tradičné recepty.',
-    address: 'Hlavná 123, Bratislava',
-    phone: '+421 123 456 789',
-    isOpen: true,
-    openingHours: {
-      monday: '11:00 - 22:00',
-      tuesday: '11:00 - 22:00',
-      wednesday: '11:00 - 22:00',
-      thursday: '11:00 - 22:00',
-      friday: '11:00 - 23:00',
-      saturday: '12:00 - 23:00',
-      sunday: '12:00 - 22:00'
-    }
-  };
+        const menuResponse = await apiClient.get(`/api/restaurants/${slug}/menu/`);
+        
+        // Extract menu items from categories
+        const allItems: any[] = [];
+        const categoryNames: string[] = [];
+        
+        if (menuResponse.data.categories) {
+          menuResponse.data.categories.forEach((category: any) => {
+            categoryNames.push(category.name);
+            if (category.items && category.items.length > 0) {
+              category.items.forEach((item: any) => {
+                allItems.push({
+                  ...item,
+                  category: { name: category.name },
+                  image: item.image || `/api/placeholder/128/128`
+                });
+              });
+            }
+          });
+        }
+        
+        setMenuItems(allItems);
+        const categories = ['all', ...categoryNames] as string[];
+        setMenuCategories(categories);
+        
+      } catch (err) {
+        setError('Nepodarilo sa načítať detaily reštaurácie.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Menu categories will be computed from API data or fallback
-
-  const menuItems = [
-    {
-      id: 1,
-      name: 'Pizza Margherita',
-      description: 'Klasická pizza s paradajkovou omáčkou, mozzarellou a čerstvou bazalkou',
-      price: 8.90,
-      image: '/api/placeholder/300/200',
-      category: 'Pizza',
-      ingredients: ['Paradajková omáčka', 'Mozzarella', 'Čerstvá bazalka', 'Olivový olej'],
-      allergens: ['Lepok', 'Mlieko'],
-      isVegetarian: true,
-      isPopular: true
-    },
-    {
-      id: 2,
-      name: 'Pizza Prosciutto',
-      description: 'Pizza s paradajkovou omáčkou, mozzarellou a prosciutto di Parma',
-      price: 12.90,
-      image: '/api/placeholder/300/200',
-      category: 'Pizza',
-      ingredients: ['Paradajková omáčka', 'Mozzarella', 'Prosciutto di Parma', 'Rukola'],
-      allergens: ['Lepok', 'Mlieko']
-    },
-    {
-      id: 3,
-      name: 'Caesar Šalát',
-      description: 'Klasický caesar šalát s kuracím mäsom, parmazánom a krutónmi',
-      price: 9.50,
-      image: '/api/placeholder/300/200',
-      category: 'Šaláty',
-      ingredients: ['Ľadový šalát', 'Kuracie mäso', 'Parmazán', 'Krutóny', 'Caesar dresing'],
-      allergens: ['Lepok', 'Mlieko', 'Vajcia']
-    },
-    {
-      id: 4,
-      name: 'Bruschetta',
-      description: 'Grilovaný chlieb s čerstvými paradajkami, bazalkou a cesnakom',
-      price: 6.50,
-      image: '/api/placeholder/300/200',
-      category: 'Predjedlá',
-      ingredients: ['Ciabatta', 'Čerstvé paradajky', 'Bazalka', 'Cesnak', 'Olivový olej'],
-      allergens: ['Lepok'],
-      isVegetarian: true
-    },
-    {
-      id: 5,
-      name: 'Tiramisu',
-      description: 'Klasický taliansky dezert s mascarpone a kávou',
-      price: 5.90,
-      image: '/api/placeholder/300/200',
-      category: 'Dezerty',
-      ingredients: ['Mascarpone', 'Káva', 'Kakaový prášok', 'Savoiardi'],
-      allergens: ['Mlieko', 'Vajcia', 'Lepok']
-    },
-    {
-      id: 6,
-      name: 'Coca Cola',
-      description: 'Osviežujúci nápoj 0.33L',
-      price: 2.50,
-      image: '/api/placeholder/300/200',
-      category: 'Nápoje'
-    }
-  ];
+    fetchRestaurantDetails();
+  }, [slug]);
 
   const addToCart = (item: any, selectedVariations: any[] = []) => {
     const cartItem = {
@@ -183,16 +119,13 @@ const RestaurantDetailPage: React.FC = () => {
     setCart([...cart, cartItem]);
   };
 
-  // Use API data if available, otherwise use mock data
-  const restaurant = restaurantData || mockRestaurant;
-  const menuCategories = restaurantData?.categories?.map(cat => cat.name) || ['all', 'Pizza', 'Predjedlá', 'Šaláty', 'Cestoviny', 'Dezerty', 'Nápoje'];
-  const allMenuItems = restaurantData?.categories?.flatMap(cat => cat.items) || menuItems;
+  const allMenuItems = menuItems;
   
   const filteredMenuItems = (allMenuItems as any[]).filter((item: any) => {
     if (selectedCategory === 'all') return true;
     // For API data, find the category this item belongs to
-    if (restaurantData) {
-      const itemCategory = restaurantData.categories?.find(cat => cat.items.some(i => i.id === item.id));
+    if (restaurant) {
+      const itemCategory = restaurant.categories?.find(cat => cat.items.some(i => i.id === item.id));
       return itemCategory?.name === selectedCategory;
     }
     // For mock data, use category property
@@ -246,14 +179,14 @@ const RestaurantDetailPage: React.FC = () => {
       {/* Restaurant Header */}
       <section className="relative">
         <img
-          src={(restaurant as any).cover_image || (restaurant as any).coverImage || '/api/placeholder/800/300'}
-          alt={restaurant.name}
+          src={(restaurant as any)?.cover_image || (restaurant as any)?.coverImage || '/api/placeholder/800/300'}
+          alt={restaurant?.name || 'Restaurant'}
           className="w-full h-64 md:h-80 object-cover"
         />
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">{restaurant.name}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">{restaurant?.name || 'Restaurant'}</h1>
             <div className="flex items-center space-x-4 text-sm">
               <span className="flex items-center">
                 ⭐ {(restaurant as any).rating || '4.5'} ({(restaurant as any).reviewCount || '0'} hodnotení)
@@ -273,15 +206,15 @@ const RestaurantDetailPage: React.FC = () => {
             {/* Restaurant Info */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
               <h2 className="text-xl font-bold text-gray-900 mb-3">O reštaurácii</h2>
-              <p className="text-gray-600 mb-4">{restaurant.description}</p>
+              <p className="text-gray-600 mb-4">{restaurant?.description || 'Informace o restauraci nejsou k dispozici.'}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="font-semibold text-gray-900">Adresa:</p>
-                  <p className="text-gray-600">{restaurant.address}</p>
+                  <p className="text-gray-600">{restaurant?.address || 'Adresa není k dispozici'}</p>
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">Telefón:</p>
-                  <p className="text-gray-600">{restaurant.phone}</p>
+                  <p className="text-gray-600">{restaurant?.phone || 'Telefon není k dispozici'}</p>
                 </div>
               </div>
             </div>

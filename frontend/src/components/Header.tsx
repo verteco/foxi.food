@@ -24,7 +24,11 @@ const Header: React.FC = () => {
             {/* Logo */}
             <div className="flex items-center">
               <Link to="/">
-                <span className="text-2xl font-bold text-orange-500">Foxi.food</span>
+                <img 
+                  src="/images/foxi-header.svg" 
+                  alt="Foxi.food" 
+                  className="h-10 w-auto"
+                />
               </Link>
             </div>
             

@@ -1,80 +1,76 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-foxi-dark text-white py-12">
+    <footer className="text-white py-8" style={{ backgroundColor: '#5957A1', zIndex: 1000 }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Company info */}
-          <div className="col-span-1 md:col-span-2">
-            <img
-              src="/api/placeholder/120/40"
-              alt="Foxi.food"
-              className="h-8 w-auto mb-4 filter brightness-0 invert"
-            />
-            <p className="text-gray-300 mb-4">
-              Najlepšia platforma pre objednávanie jedla z top reštaurácií vo vašom meste. 
-              Rýchle doručenie a kvalitné jedlo na dosah ruky.
-            </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-foxi-orange">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
-                </svg>
-              </a>
-              <a href="#" className="text-gray-300 hover:text-foxi-orange">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/>
-                </svg>
-              </a>
-              <a href="#" className="text-gray-300 hover:text-foxi-orange">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.748-1.378 0 0-.599 2.282-.744 2.840-.282 1.084-1.064 2.456-1.549 3.235C9.584 23.815 10.77 24.001 12.017 24.001c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/>
-                </svg>
-              </a>
+          <div className="col-span-1">
+            <div className="flex items-center mb-4">
+              <img
+                src="/images/foxi-footer.svg"
+                alt="Foxi.food"
+                className="h-16 w-auto mr-2"
+              />
             </div>
+            <p className="text-white text-sm mb-4">
+              Foxi Food s.r.o.<br />
+              Adresa 01/234/5,<br />
+              012 34 Bratislava<br />
+              Slovensko
+            </p>
           </div>
           
-          {/* Quick links */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Rýchle odkazy</h3>
+          <div className="col-span-1">
+            <h4 className="font-medium mb-4">Tvoje obľúbené jedlo<br />doručené bleskovo až k dverám.</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-foxi-orange">O nás</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-foxi-orange">Ako to funguje</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-foxi-orange">Kariéra</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-foxi-orange">Blog</a></li>
+              <li><Link to="/pre-zakaznikov" className="text-white hover:text-gray-200 text-sm flex items-center"><span className="mr-2">›</span> Pre zákazníkov</Link></li>
+              <li><Link to="/pre-partnerov" className="text-white hover:text-gray-200 text-sm flex items-center"><span className="mr-2">›</span> Pre partnerov</Link></li>
+              <li><Link to="/pre-kurierov" className="text-white hover:text-gray-200 text-sm flex items-center"><span className="mr-2">›</span> Pre kuriérov</Link></li>
             </ul>
           </div>
           
-          {/* For restaurants */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Pre reštaurácie</h3>
-            <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-foxi-orange">Registrácia</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-foxi-orange">Dashboard</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-foxi-orange">Podpora</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-foxi-orange">Ceny</a></li>
-            </ul>
+          <div className="col-span-1 grid grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-medium mb-4">Užitočné odkazy</h4>
+              <ul className="space-y-1">
+                <li><Link to="/caste-otazky" className="text-white hover:text-gray-200 text-sm">Časté otázky</Link></li>
+                <li><Link to="/podpora" className="text-white hover:text-gray-200 text-sm">Podpora</Link></li>
+                <li><Link to="/online-ucet" className="text-white hover:text-gray-200 text-sm">Online účet</Link></li>
+                <li><Link to="/ponuky-a-novinky" className="text-white hover:text-gray-200 text-sm">Ponuky a novinky</Link></li>
+              </ul>
+              <div className="flex space-x-2 mt-4">
+                <a href="#" className="text-white hover:text-gray-200">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M22,12.07A10,10,0,0,1,12,22,10,10,0,0,1,2,12.07,10,10,0,0,1,12,2,10,10,0,0,1,22,12.07ZM8.22,15.77H10.3V16.5H8.22V15.77Zm0-9.23V9.73H16V6.54H8.22Zm0,5.54H16V9.27H8.22v2.81ZM8.22,15V13.5H13v1.54Z"/>
+                  </svg>
+                </a>
+                <a href="#" className="text-white hover:text-gray-200">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12,2.04C6.5,2.04,2,6.53,2,12.06C2,17.06,5.66,21.21,10.44,21.96V14.96H7.9V12.06H10.44V9.85C10.44,7.34,11.93,5.96,14.22,5.96C15.31,5.96,16.45,6.15,16.45,6.15V8.62H15.19C13.95,8.62,13.56,9.39,13.56,10.18V12.06H16.34L15.89,14.96H13.56V21.96A10,10,0,0,0,22,12.06C22,6.53,17.5,2.04,12,2.04Z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-medium mb-4">Obchod</h4>
+              <ul className="space-y-1">
+                <li><Link to="/kontakt" className="text-white hover:text-gray-200 text-sm">Kontakt</Link></li>
+                <li><Link to="/kariera" className="text-white hover:text-gray-200 text-sm">Kariéra</Link></li>
+                <li><Link to="/media" className="text-white hover:text-gray-200 text-sm">Média</Link></li>
+                <li><Link to="/obchodne-podmienky" className="text-white hover:text-gray-200 text-sm">Obchodné podmienky</Link></li>
+                <li><Link to="/ochrana-udajov" className="text-white hover:text-gray-200 text-sm">Ochrana údajov</Link></li>
+              </ul>
+            </div>
           </div>
         </div>
         
-        <div className="border-t border-gray-700 pt-8 mt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-300">
-              © 2024 Foxi.food. Všetky práva vyhradené.
-            </p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-gray-300 hover:text-foxi-orange text-sm">
-                Podmienky používania
-              </a>
-              <a href="#" className="text-gray-300 hover:text-foxi-orange text-sm">
-                Ochrana súkromia
-              </a>
-              <a href="#" className="text-gray-300 hover:text-foxi-orange text-sm">
-                Cookies
-              </a>
-            </div>
-          </div>
+        <div className="pt-6 mt-8 text-center text-sm">
+          <p className="text-white">
+            Copyright © 2025 Foxi.food
+          </p>
         </div>
       </div>
     </footer>

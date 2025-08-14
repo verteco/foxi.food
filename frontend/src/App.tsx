@@ -20,6 +20,27 @@ import CustomerDashboard from './pages/CustomerDashboard';
 import RestaurantOwnerDashboard from './pages/RestaurantOwnerDashboard';
 import RestaurantEmployeeDashboard from './pages/RestaurantEmployeeDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+// Footer Pages
+import {
+  PreZakaznikovPage,
+  PrePartnerovPage,
+  PreKurierovPage,
+  CasteOtazkyPage,
+  PodporaPage,
+  OnlineUcetPage,
+  PonukyANovinkyPage,
+  KontaktPage,
+  KarieraPage,
+  MediaPage,
+  ObchodnePodmienkyPage,
+  OchranaUdajovPage,
+  ONasPage,
+  AkoToFungujePage,
+  BlogPage,
+  RegistraciaPage,
+  DashboardPage,
+  CenyPage
+} from './pages/FooterPages';
 import './index.css';
 
 function App() {
@@ -34,7 +55,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/restaurants" element={<RestaurantsPage />} />
-                  <Route path="/restaurant/:id" element={<RestaurantDetailPage />} />
+                  <Route path="/restaurant/:slug" element={<RestaurantDetailPage />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/restaurant-signup" element={<RestaurantSignupPage />} />
                   <Route path="/how-it-works" element={<HowItWorksPage />} />
@@ -65,6 +86,32 @@ function App() {
                       </ProtectedRoute>
                     } 
                   />
+                  
+                  {/* Footer Pages */}
+                  {/* Customer Links */}
+                  <Route path="/pre-zakaznikov" element={<PreZakaznikovPage />} />
+                  <Route path="/pre-partnerov" element={<PrePartnerovPage />} />
+                  <Route path="/pre-kurierov" element={<PreKurierovPage />} />
+                  
+                  {/* Useful Links */}
+                  <Route path="/caste-otazky" element={<CasteOtazkyPage />} />
+                  <Route path="/podpora" element={<PodporaPage />} />
+                  <Route path="/online-ucet" element={<OnlineUcetPage />} />
+                  <Route path="/ponuky-a-novinky" element={<PonukyANovinkyPage />} />
+                  
+                  {/* Business Links */}
+                  <Route path="/kontakt" element={<KontaktPage />} />
+                  <Route path="/kariera" element={<KarieraPage />} />
+                  <Route path="/media" element={<MediaPage />} />
+                  <Route path="/obchodne-podmienky" element={<ObchodnePodmienkyPage />} />
+                  <Route path="/ochrana-udajov" element={<OchranaUdajovPage />} />
+                  
+                  {/* Additional Pages */}
+                  <Route path="/o-nas" element={<ONasPage />} />
+                  <Route path="/ako-to-funguje" element={<AkoToFungujePage />} />
+                  <Route path="/blog" element={<BlogPage />} />
+                  <Route path="/registracia" element={<RegistraciaPage />} />
+                  <Route path="/ceny" element={<CenyPage />} />
                 </Routes>
               </div>
             </Router>

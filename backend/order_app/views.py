@@ -3,11 +3,13 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 import uuid
 
 from .models import Customer, Order, OrderItem
 from .serializers import CustomerSerializer, OrderSerializer, OrderCreateSerializer, OrderItemSerializer
 from menu_app.models import MenuItem
+from restaurant_app.models import Restaurant
 
 
 class OrderListCreateView(generics.ListCreateAPIView):
@@ -81,13 +83,35 @@ class OrderDetailView(generics.RetrieveUpdateAPIView):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def order_status(request, order_number):
-    """Get order status by order number"""
+    """
+    Get order status by order number
+    """
     try:
         order = Order.objects.get(order_number=order_number)
         serializer = OrderSerializer(order)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     except Order.DoesNotExist:
         return Response(
             {'error': 'Order not found'}, 
             status=status.HTTP_404_NOT_FOUND
         )
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def restaurant_orders(request, restaurant_id):
+    """
+    Get all orders for a specific restaurant by ID
+    """
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id, is_active=True)
+    orders = Order.objects.filter(restaurant=restaurant).order_by('-created_at')
+    serializer = OrderSerializer(orders, many=True)
+    return Response({
+        'restaurant': {
+            'id': restaurant.id,
+            'name': restaurant.name,
+            'slug': restaurant.slug
+        },
+        'orders': serializer.data,
+        'total_orders': len(serializer.data)
+    })

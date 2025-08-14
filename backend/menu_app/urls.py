@@ -1,9 +1,10 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
 urlpatterns = [
-    # Restaurant menu overview
+    # Restaurant menu overview - support both slug and numeric ID
     path('restaurants/<slug:restaurant_slug>/menu/', views.restaurant_menu_overview, name='restaurant-menu-overview'),
+    path('restaurants/<int:restaurant_id>/menu/', views.restaurant_menu_by_id, name='restaurant-menu-by-id'),
     
     # Category endpoints
     path('restaurants/<slug:restaurant_slug>/categories/', views.CategoryListView.as_view(), name='category-list'),

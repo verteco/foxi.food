@@ -26,7 +26,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-^g*rpcp7yd#mh0*^gg#z6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.foxi.food']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.foxi.food', 'backend', '*']
 
 
 # Application definition
@@ -41,11 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'rest_framework.authtoken',  # Added for Token authentication
     'rest_framework_simplejwt',
     'tenants',
     'restaurant_app',
     'order_app',
     'menu_app',
+    'utility_app',
 ]
 
 # For production with multi-tenancy, use:
