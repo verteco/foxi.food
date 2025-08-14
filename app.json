@@ -26,7 +26,7 @@
         },
         {
           "key": "ALLOWED_HOSTS",
-          "value": ".ondigitalocean.app,localhost"
+          "value": "www.foxi.food,foxi.food,.ondigitalocean.app,localhost"
         },
         {
           "key": "DATABASE_URL",

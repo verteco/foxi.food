@@ -1,5 +1,9 @@
 name: foxi-food
 region: fra
+domains:
+  - domain: foxi.food
+    type: PRIMARY
+    zone: foxi.food
 services:
   - name: backend
     environment_slug: python
@@ -12,13 +16,15 @@ services:
     http_port: 8000
     instance_count: 1
     instance_size_slug: basic-xs
+    routes:
+      - path: /api
     envs:
       - key: DEBUG
         value: "False"
       - key: ALLOWED_HOSTS
-        value: ".ondigitalocean.app,localhost"
+        value: "www.foxi.food,foxi.food,.ondigitalocean.app,localhost"
       - key: CORS_ALLOWED_ORIGINS
-        value: "https://foxi-food.ondigitalocean.app"
+        value: "https://www.foxi.food,https://foxi.food"
       - key: SECRET_KEY
         type: SECRET
         value: "your-secret-key-here"
@@ -40,10 +46,9 @@ services:
     instance_size_slug: basic-xs
     envs:
       - key: REACT_APP_API_URL
-        value: "https://foxi-food-backend.ondigitalocean.app"
+        value: "https://www.foxi.food/api"
     routes:
       - path: /
-
 databases:
   - name: db
     engine: PG
