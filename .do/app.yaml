@@ -5,23 +5,24 @@ domains:
     type: PRIMARY
     zone: foxi.food
 services:
-  # Frontend must be first to catch root path
+  # Frontend service with nginx - must be first for routing priority
   - name: frontend
-    environment_slug: static
+    dockerfile_path: frontend/Dockerfile
+    source_dir: frontend
     github:
       branch: main
       deploy_on_push: true
       repo: verteco/foxi.food
-    source_dir: frontend
-    build_command: npm ci && npm run build
-    output_dir: build
+    http_port: 80
+    instance_count: 1
+    instance_size_slug: basic-xs
     routes:
       - path: /
     envs:
       - key: REACT_APP_API_URL
         value: "https://www.foxi.food/api"
     
-  # Backend API service
+  # Backend API service  
   - name: backend
     environment_slug: python
     github:
