@@ -5,6 +5,23 @@ domains:
     type: PRIMARY
     zone: foxi.food
 services:
+  # Frontend must be first to catch root path
+  - name: frontend
+    environment_slug: static
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: verteco/foxi.food
+    source_dir: frontend
+    build_command: npm ci && npm run build
+    output_dir: build
+    routes:
+      - path: /
+    envs:
+      - key: REACT_APP_API_URL
+        value: "https://www.foxi.food/api"
+    
+  # Backend API service
   - name: backend
     environment_slug: python
     github:
@@ -32,23 +49,6 @@ services:
         scope: RUN_TIME
         value: ${db.DATABASE_URL}
     run_command: gunicorn --bind 0.0.0.0:8000 foxi_food_backend.wsgi:application
-    
-  - name: frontend
-    environment_slug: node-js
-    github:
-      branch: main
-      deploy_on_push: true
-      repo: verteco/foxi.food
-    source_dir: frontend
-    dockerfile_path: frontend/Dockerfile
-    http_port: 80
-    instance_count: 1
-    instance_size_slug: basic-xs
-    envs:
-      - key: REACT_APP_API_URL
-        value: "https://www.foxi.food/api"
-    routes:
-      - path: /
 databases:
   - name: db
     engine: PG
