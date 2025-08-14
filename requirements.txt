@@ -1,0 +1,3 @@
+# Backend dependencies - see backend/requirements.txt for full list
+Django==4.2.7
+gunicorn==21.2.0
